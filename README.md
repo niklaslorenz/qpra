@@ -3,7 +3,7 @@ The Quantified Program Reader is a converter for different file formats of quant
 
 ## How to build
 The steps below show you how to build the entire project. Every module's output is saved in ```<module>/build/libs/```
-For the final app, go with the archive with the "-all" prefix so you do not need any runtime dependencies.
+For the final app, go with the archive with the "-all" postfix so you do not need any runtime dependencies.
 
 ### Requirements
 - Java 17
