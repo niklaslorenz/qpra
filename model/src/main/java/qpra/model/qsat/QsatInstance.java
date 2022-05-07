@@ -6,15 +6,15 @@ import qpra.model.sat.SatClause;
 import java.util.List;
 
 public class QsatInstance {
-    private final @NotNull List<QuantifiedAtom> quantifiers;
+    private final @NotNull List<? extends QuantifiedAtom> quantifiers;
     private final @NotNull List<SatClause> clauses;
 
-    public QsatInstance(@NotNull List<QuantifiedAtom> quantifiers, @NotNull List<SatClause> clauses) {
+    public QsatInstance(@NotNull List<? extends QuantifiedAtom> quantifiers, @NotNull List<SatClause> clauses) {
         this.quantifiers = quantifiers;
         this.clauses = clauses;
     }
 
-    public List<QuantifiedAtom> quantifiers() {
+    public List<? extends QuantifiedAtom> quantifiers() {
         return quantifiers;
     }
 
