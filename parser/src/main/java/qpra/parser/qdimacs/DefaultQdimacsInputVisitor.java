@@ -30,32 +30,8 @@ public class DefaultQdimacsInputVisitor extends AbstractParseTreeVisitor<Object>
     }
 
     @Override
-    public Pair<Integer, Integer> visitPreamble_WithoutComments(QdimacsInputParser.Preamble_WithoutCommentsContext ctx) {
+    public Pair<Integer, Integer> visitPreamble(QdimacsInputParser.PreambleContext ctx) {
         return visitProblem_line(ctx.problem_line());
-    }
-
-    @Override
-    public Pair<Integer, Integer> visitPreamble_WithComments(QdimacsInputParser.Preamble_WithCommentsContext ctx) {
-        return visitProblem_line(ctx.problem_line());
-    }
-
-    @Override
-    public List<String> visitCommentLines_Last(QdimacsInputParser.CommentLines_LastContext ctx) {
-        List<String> list = new ArrayList<>();
-        list.add(visitComment_line(ctx.comment_line()));
-        return list;
-    }
-
-    @Override
-    public List<String> visitCommentLines_Intermediate(QdimacsInputParser.CommentLines_IntermediateContext ctx) {
-        List<String> list = (List<String>) visit(ctx.comment_lines());
-        list.add(visitComment_line(ctx.comment_line()));
-        return list;
-    }
-
-    @Override
-    public String visitComment_line(QdimacsInputParser.Comment_lineContext ctx) {
-        return ctx.TEXT().getText();
     }
 
     @Override

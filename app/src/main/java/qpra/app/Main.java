@@ -30,6 +30,10 @@ public class Main {
         ParseTree tree = parser.input();
         DefaultQdimacsInputVisitor converter = new DefaultQdimacsInputVisitor();
         QsatInstance instance = (QsatInstance) converter.visit(tree);
+        if(instance == null) {
+            System.err.println("Paring Error: File not formatted correctly");
+            return;
+        }
         QsatFormatter formatter = new QsatFormatter();
         File out = f.toPath().toAbsolutePath().getParent().resolve(f.getName() + ".qlp").toFile();
         String format = formatter.toYasolInput(instance);

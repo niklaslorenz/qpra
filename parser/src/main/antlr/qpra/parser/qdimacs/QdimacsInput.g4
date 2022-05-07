@@ -10,15 +10,7 @@ input
     ;
 
 preamble
-    : problem_line                  #Preamble_WithoutComments
-    | comment_lines problem_line    #Preamble_WithComments
-    ;
-comment_lines
-    : comment_line                  #CommentLines_Last
-    | comment_line comment_lines    #CommentLines_Intermediate
-    ;
-comment_line
-    : KEY_COMMENT TEXT
+    : problem_line
     ;
 problem_line
     : KEY_PROBLEM PNUM PNUM
@@ -60,9 +52,8 @@ literal
 PNUM: [1-9][0-9]*;
 NNUM: '-' [1-9][0-9]*;
 KEY_PROBLEM: 'p cnf';
-KEY_COMMENT: 'c';
+COMMENT: 'c' ~('\r' | '\n')* -> skip;
 KEY_EXQ: 'e';
 KEY_ALLQ: 'a';
 KEY_ZERO: '0';
 WHITESPACE: [ \r\n] -> skip;
-TEXT: .+?;
