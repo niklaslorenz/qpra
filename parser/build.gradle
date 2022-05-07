@@ -1,0 +1,18 @@
+plugins {
+    id 'java-library'
+    id 'antlr'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    antlr "org.antlr:antlr4:4.10"
+    implementation "org.antlr:antlr4:4.10"
+    implementation project(':model')
+}
+
+generateGrammarSource {
+    arguments += ["-visitor", "-long-messages"]
+}
