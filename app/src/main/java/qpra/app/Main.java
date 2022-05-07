@@ -37,7 +37,8 @@ public class Main {
         QsatFormatter formatter = new QsatFormatter();
         File out = f.toPath().toAbsolutePath().getParent().resolve(f.getName() + ".qlp").toFile();
         String format = formatter.toYasolInput(instance);
-        System.out.println(format);
         Files.writeString(out.toPath(), format);
+        System.out.println("Converted input into QLP format");
+        System.out.println("Wrote output to " + out.getPath());
     }
 }
