@@ -5,6 +5,9 @@ The Quantified Program Reader is a converter for different file formats of quant
 The steps below show you how to build the entire project. Every module's output is saved in ```<module>/build/libs/```
 For the final app, go with the archive with the "-all" prefix so you do not need any runtime dependencies.
 
+### Requirements
+- Java 17
+
 ### Windows
 Open a console and run ````.\gradlew.bat build````
 
