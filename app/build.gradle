@@ -1,0 +1,25 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':parser')
+    implementation project(':model')
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
+}
+
+jar {
+    manifest {
+        attributes('Main-Class': 'qpra.app.Main')
+    }
+}
+
+application {
+    mainClass = 'qpra.app.Main'
+}
