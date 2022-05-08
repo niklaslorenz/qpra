@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'application'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'antlr'
 }
 
 repositories {
@@ -9,6 +10,7 @@ repositories {
 }
 
 dependencies {
+    antlr "org.antlr:antlr4:4.10"
     implementation project(':parser')
     implementation project(':model')
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
@@ -22,4 +24,12 @@ jar {
 
 application {
     mainClass = 'qpra.app.Main'
+}
+
+generateGrammarSource {
+    arguments += ["-visitor", "-long-messages"]
+}
+
+shadowJar {
+    archiveFileName = "qpra.jar"
 }
