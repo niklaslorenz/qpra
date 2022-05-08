@@ -17,7 +17,7 @@ public class QsatFormatter {
         HashSet<Integer> atoms = new HashSet<>();
         HashSet<Integer> unboundAtoms = new HashSet<>();
         builder = new StringBuilder();
-        builder.append("SUBJECT TO\n");
+        builder.append("MAXIMIZE\nSUBJECT TO\n");
         for(SatClause clause : instance.clauses()) {
             currentConstraintThreshold = 1;
             literalNeedsSign = false;
