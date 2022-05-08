@@ -13,7 +13,7 @@ public class QsatFormatter {
     private int currentConstraintThreshold;
     private StringBuilder builder;
 
-    public String toYasolInput(QsatInstance instance) {
+    public String toQlp(QsatInstance instance) {
         HashSet<Integer> atoms = new HashSet<>();
         HashSet<Integer> unboundAtoms = new HashSet<>();
         builder = new StringBuilder();
