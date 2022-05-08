@@ -11,8 +11,8 @@ import qpra.model.sat.SatClause;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DefaultQdimacsInputVisitor extends AbstractParseTreeVisitor<Object> implements QdimacsInputVisitor<Object> {
-
+public class DefaultQdimacsInputVisitor {
+/*
     @Override
     public QsatInstance visitInput_WithPrefix(QdimacsInputParser.Input_WithPrefixContext ctx) {
         Pair<Integer, Integer> preamble = (Pair<Integer, Integer>) visit(ctx.preamble());
@@ -132,5 +132,5 @@ public class DefaultQdimacsInputVisitor extends AbstractParseTreeVisitor<Object>
     @Override
     public Integer visitLiteral_NNUM(QdimacsInputParser.Literal_NNUMContext ctx) {
         return Integer.parseInt(ctx.NNUM().getText());
-    }
+    }*/
 }
