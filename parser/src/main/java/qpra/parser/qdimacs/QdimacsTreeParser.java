@@ -18,6 +18,9 @@ public class QdimacsTreeParser implements QsatParser {
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         QdimacsInputParser parser = new QdimacsInputParser(tokens);
         ParseTree tree = parser.input();
+        if(parser.getNumberOfSyntaxErrors() > 0) {
+            return null;
+        }
         DefaultQdimacsInputListener listener = new DefaultQdimacsInputListener();
         ParseTreeWalker.DEFAULT.walk(listener, tree);
         return listener.result();
