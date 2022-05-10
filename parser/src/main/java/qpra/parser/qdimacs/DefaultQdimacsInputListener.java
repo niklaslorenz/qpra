@@ -9,6 +9,7 @@ import qpra.model.core.Quantifier;
 import qpra.model.qsat.QsatInstance;
 import qpra.parser.ParseStack;
 import qpra.parser.error.ParseError;
+import qpra.util.OptimizedCharStream;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -17,6 +18,7 @@ import java.util.Set;
 
 public class DefaultQdimacsInputListener implements QdimacsInputListener {
 
+    private boolean usesInputStream;
     private final boolean verify;
     private final ParseStack<Set<Integer>> clauses;
     private final ParseStack<List<Set<Integer>>> matrices;
@@ -33,6 +35,7 @@ public class DefaultQdimacsInputListener implements QdimacsInputListener {
 
     public DefaultQdimacsInputListener(boolean verify) {
         this.verify = verify;
+        this.usesInputStream = false;
         clauses = new ParseStack<>();
         matrices = new ParseStack<>();
         quantifiers = new ParseStack<>();
@@ -46,6 +49,7 @@ public class DefaultQdimacsInputListener implements QdimacsInputListener {
 
     @Override
     public void enterInput(QdimacsInputParser.InputContext ctx) {
+        usesInputStream = ctx.getStart().getInputStream() instanceof OptimizedCharStream;
         QdimacsInstance instance = new QdimacsInstance();
         QsatInstance qsat = instance.instance();
         instances.push(instance);
@@ -159,7 +163,11 @@ public class DefaultQdimacsInputListener implements QdimacsInputListener {
             if(child instanceof TerminalNode node) {
                 int type = node.getSymbol().getType();
                 if(type == QdimacsInputLexer.NNUM || type == QdimacsInputLexer.PNUM) {
-                    clause.add(Integer.parseInt(node.getText()));
+                    if(usesInputStream) {
+                        clause.add(((OptimizedCharStream) node.getSymbol().getInputStream()).parseInt(node.getSymbol().getStartIndex(), node.getSymbol().getStopIndex()));
+                    } else {
+                        clause.add(Integer.parseInt(node.getText()));
+                    }
                 }
             }
         }
