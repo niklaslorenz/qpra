@@ -21,7 +21,7 @@ public class Main {
             return;
         }
         File outputFile = args.length > 1 ? new File(args[1]) : getDefaultOutputPath(inputFile.toPath()).toFile();
-        QsatInstance instance = new QdimacsTreeParser().parse(inputFile);
+        QsatInstance instance = new QdimacsTreeParser().parse(inputFile, false);
         if(instance == null) {
             System.err.println("Parsing Error. Could not interpret input.");
             return;

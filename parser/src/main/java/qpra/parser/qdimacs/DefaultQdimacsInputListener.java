@@ -115,9 +115,20 @@ public class DefaultQdimacsInputListener implements QdimacsInputListener {
     public void exitQuant_set(QdimacsInputParser.Quant_setContext ctx) {
         quantifiers.popHandler();
         Set<Integer> set = quantSets.value().atoms();
-        for(TerminalNode atom : ctx.PNUM()) {
-            set.add(Integer.parseInt(atom.getText()));
+
+        for(ParseTree child : ctx.children) {
+            if(child instanceof TerminalNode node) {
+                int type = node.getSymbol().getType();
+                if(type == QdimacsInputLexer.PNUM) {
+                    if(usesInputStream) {
+                        set.add(((OptimizedCharStream) node.getSymbol().getInputStream()).parseInt(node.getSymbol().getStartIndex(), node.getSymbol().getStopIndex()));
+                    } else {
+                        set.add(Integer.parseInt(node.getText()));
+                    }
+                }
+            }
         }
+
         quantSets.handle();
     }
 
