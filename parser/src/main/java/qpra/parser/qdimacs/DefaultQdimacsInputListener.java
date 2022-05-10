@@ -3,6 +3,7 @@ package qpra.parser.qdimacs;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.runtime.tree.ErrorNode;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import qpra.model.core.Quantifier;
 import qpra.model.qsat.QsatInstance;
@@ -17,7 +18,6 @@ import java.util.Set;
 public class DefaultQdimacsInputListener implements QdimacsInputListener {
 
     private final boolean verify;
-    private final ParseStack<Integer> literals;
     private final ParseStack<Set<Integer>> clauses;
     private final ParseStack<List<Set<Integer>>> matrices;
     private final ParseStack<Quantifier> quantifiers;
@@ -33,7 +33,6 @@ public class DefaultQdimacsInputListener implements QdimacsInputListener {
 
     public DefaultQdimacsInputListener(boolean verify) {
         this.verify = verify;
-        literals = new ParseStack<>();
         clauses = new ParseStack<>();
         matrices = new ParseStack<>();
         quantifiers = new ParseStack<>();
@@ -151,24 +150,20 @@ public class DefaultQdimacsInputListener implements QdimacsInputListener {
 
     @Override
     public void enterClause(QdimacsInputParser.ClauseContext ctx) {
-        Set<Integer> clause = new HashSet<>();
-        clauses.push(clause);
-        literals.push(clause::add);
     }
 
     @Override
     public void exitClause(QdimacsInputParser.ClauseContext ctx) {
-        literals.popHandler();
-        clauses.handle();
-    }
-
-    @Override
-    public void enterLiteral(QdimacsInputParser.LiteralContext ctx) {
-    }
-
-    @Override
-    public void exitLiteral(QdimacsInputParser.LiteralContext ctx) {
-        literals.handle(Integer.parseInt(ctx.getText()));
+        Set<Integer> clause = new HashSet<>((int) (1.5 * (ctx.children.size())), 2);
+        for(ParseTree child : ctx.children) {
+            if(child instanceof TerminalNode node) {
+                int type = node.getSymbol().getType();
+                if(type == QdimacsInputLexer.NNUM || type == QdimacsInputLexer.PNUM) {
+                    clause.add(Integer.parseInt(node.getText()));
+                }
+            }
+        }
+        clauses.handle(clause);
     }
 
     @Override

@@ -25,11 +25,7 @@ matrix
     : clause+
     ;
 clause
-    : literal+ KEY_ZERO
-    ;
-literal
-    : NNUM
-    | PNUM
+    : (NNUM|PNUM)+ KEY_ZERO
     ;
 
 PNUM: [1-9][0-9]*;

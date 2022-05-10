@@ -1,6 +1,7 @@
 package qpra.parser.qdimacs;
 
 import org.antlr.v4.runtime.ANTLRFileStream;
+import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
@@ -17,6 +18,7 @@ public class QdimacsTreeParser implements QsatParser {
         QdimacsInputLexer lexer = new QdimacsInputLexer(new ANTLRFileStream(inputFile.getPath()));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         QdimacsInputParser parser = new QdimacsInputParser(tokens);
+        parser.setErrorHandler(new BailErrorStrategy());
         ParseTree tree = parser.input();
         if(parser.getNumberOfSyntaxErrors() > 0) {
             return null;
