@@ -1,0 +1,3 @@
+c An instance that is missing line endings.
+c Although the file-type-definition requires them, the parser should be able to handle a file without them
+p cnf 2 3 a 2 0 e 1 0 -1 0 -1 2 0 2 0

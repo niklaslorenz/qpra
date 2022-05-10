@@ -1,0 +1,6 @@
+c This instance combines the cases of explicit and implicit variable quantification
+p cnf 4 1
+e 3 0
+a 4 0
+e 1 0
+3 -2 1 0

@@ -1,0 +1,4 @@
+c This instance is missing some whitespaces
+c that the standard does require but are not
+c needed by the parser
+p cnf 3 3 a2 0e1 0a3 01 2 3 0-1-2 3 01 0

@@ -1,0 +1,5 @@
+c The example provided on the qdimacs format definition page
+p cnf 4 2
+e 1 2 3 4 0
+-1 2 0
+2 -3 -4 0
