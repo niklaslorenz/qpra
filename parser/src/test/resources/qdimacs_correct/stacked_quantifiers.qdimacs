@@ -1,0 +1,12 @@
+c An instance with multiple quantifier sets with the same quantifier in a row
+c The standard does not allow it but the parser can handle it
+p cnf 7 2
+e 1 0
+e 2 0
+a 3 0
+a 4 0
+a 5 0
+e 6 0
+a 7 0
+1 2 0
+3 4 0

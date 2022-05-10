@@ -108,6 +108,14 @@ public class QdimacsCorrectInstanceTest {
                 .addClause(-2, 2, 3)
                 .addClause(-2, 3, -3)
         );
+        instances.put("stacked_quantifiers", new QsatInstance()
+                .variableCount(7)
+                .addQuantifierSet(3, 4, 5)
+                .addQuantifierSet(6)
+                .addQuantifierSet(7)
+                .addClause(1, 2)
+                .addClause(3, 4)
+        );
     }
 
 }
