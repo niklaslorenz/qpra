@@ -1,11 +1,8 @@
 package qpra.model.qsat;
 
-import qpra.model.core.Quantifier;
-import qpra.model.sat.SatClause;
-
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Set;
+import java.util.stream.IntStream;
 
 public class QsatFormatter {
 
@@ -14,60 +11,62 @@ public class QsatFormatter {
     private StringBuilder builder;
 
     public String toQlp(QsatInstance instance) {
-        HashSet<Integer> atoms = new HashSet<>();
         HashSet<Integer> unboundAtoms = new HashSet<>();
+        IntStream.range(1, instance.variableCount() + 1).forEach(unboundAtoms::add);
         builder = new StringBuilder();
         builder.append("MAXIMIZE\nSUBJECT TO\n");
-        for(SatClause clause : instance.clauses()) {
-            currentConstraintThreshold = 1;
-            literalNeedsSign = false;
-            for(int literal : clause) {
-                appendLiteral(literal);
-                int atom = Math.abs(literal);
-                atoms.add(atom);
-                unboundAtoms.add(atom);
-            }
-            builder.append(" >= ").append(currentConstraintThreshold);
-            builder.append("\n");
+        for(Set<Integer> clause : instance.clauses()) {
+            appendClause(clause);
         }
         builder.append("BINARIES\n");
-        for(int atom : atoms) {
-            appendAtom(atom);
+        for(int i = 1; i <= instance.variableCount(); ++i){
+            appendAtom(i);
             builder.append(" ");
         }
         builder.append("\n");
-        for(QuantifiedAtom q : instance.quantifiers()) {
-            unboundAtoms.remove(q.index());
+        for(Set<Integer> set : instance.quantifiers()) {
+            unboundAtoms.removeAll(set);
         }
-        List<QuantifiedAtom> quantifiers = new ArrayList<>();
-        for(int atom : unboundAtoms) {
-            quantifiers.add(new QuantifiedAtom(atom, Quantifier.EXISTENCE));
-        }
-        quantifiers.addAll(instance.quantifiers());
-        builder.append("EXISTS\n");
-        for(QuantifiedAtom atom : quantifiers) {
-            if(atom.quantifier() == Quantifier.EXISTENCE) {
-                appendAtom(atom.index());
-                builder.append(" ");
+        Set<Integer> allQuantified = new HashSet<>(),
+                existenceQuantified;
+        existenceQuantified = new HashSet<>(unboundAtoms);
+        for(int i = 0; i < instance.quantifiers().size(); ++i) {
+            switch(QsatInstance.getQuantifierOfSet(i)) {
+                case EXISTENCE -> existenceQuantified.addAll(instance.quantifiers().get(i));
+                case ALL -> allQuantified.addAll(instance.quantifiers().get(i));
             }
         }
+        builder.append("EXISTS\n");
+        appendAtomSet(existenceQuantified);
         builder.append("\n");
         builder.append("ALL\n");
-        for(QuantifiedAtom atom : quantifiers) {
-            if(atom.quantifier() == Quantifier.ALL) {
-                appendAtom(atom.index());
-                builder.append(" ");
-            }
-        }
+        appendAtomSet(allQuantified);
         builder.append("\n");
         builder.append("ORDER\n");
-        for(QuantifiedAtom atom : quantifiers) {
-            appendAtom(atom.index());
-            builder.append(" ");
+        appendAtomSet(unboundAtoms);
+        for(Set<Integer> set : instance.quantifiers()) {
+            appendAtomSet(set);
         }
         builder.append("\n");
         builder.append("END\n");
         return builder.toString();
+    }
+
+    private void appendAtomSet(Set<Integer> set) {
+        for(int atom : set) {
+            appendAtom(atom);
+            builder.append(" ");
+        }
+    }
+
+    private void appendClause(Set<Integer> clause) {
+        currentConstraintThreshold = 1;
+        literalNeedsSign = false;
+        for(int literal : clause) {
+            appendLiteral(literal);
+        }
+        builder.append(" >= ").append(currentConstraintThreshold);
+        builder.append("\n");
     }
 
     private void appendLiteral(int literal) {
