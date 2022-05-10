@@ -4,10 +4,13 @@ import qpra.model.qsat.QsatInstance;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 
 public interface QsatParser {
 
-    QsatInstance parse(File inputFile) throws IOException;
+    default QsatInstance parse(File inputFile) throws IOException {
+        return parse(inputFile, true);
+    }
+
+    QsatInstance parse(File inputFile, boolean verify) throws IOException;
 
 }

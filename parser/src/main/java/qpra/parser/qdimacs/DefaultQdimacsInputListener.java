@@ -6,29 +6,33 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import qpra.model.core.Quantifier;
 import qpra.model.qsat.QsatInstance;
-import qpra.model.qsat.QuantifiedAtom;
-import qpra.model.sat.SatClause;
 import qpra.parser.ParseStack;
 import qpra.parser.error.ParseError;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class DefaultQdimacsInputListener implements QdimacsInputListener {
 
-    private ParseStack<Integer> literals;
-    private ParseStack<SatClause> clauses;
-    private ParseStack<List<SatClause>> matrices;
-    private ParseStack<Quantifier> quantifiers;
-    private ParseStack<QuantifiedAtom> quantSets;
-    private ParseStack<List<QuantifiedAtom>> prefixes;
-    private ParseStack<Pair<Integer, Integer>> problems;
-
+    private final boolean verify;
+    private final ParseStack<Integer> literals;
+    private final ParseStack<Set<Integer>> clauses;
+    private final ParseStack<List<Set<Integer>>> matrices;
+    private final ParseStack<Quantifier> quantifiers;
+    private final ParseStack<QuantifierSet> quantSets;
+    private final ParseStack<List<Set<Integer>>> prefixes;
+    private final ParseStack<Pair<Integer, Integer>> problems;
+    private final ParseStack<QdimacsInstance> instances;
     private QsatInstance result;
-    private Pair<Integer, Integer> problem;
-    private List<QuantifiedAtom> prefix;
-    private List<SatClause> matrix;
 
     public DefaultQdimacsInputListener() {
+        this(true);
+    }
+
+    public DefaultQdimacsInputListener(boolean verify) {
+        this.verify = verify;
         literals = new ParseStack<>();
         clauses = new ParseStack<>();
         matrices = new ParseStack<>();
@@ -36,27 +40,22 @@ public class DefaultQdimacsInputListener implements QdimacsInputListener {
         quantSets = new ParseStack<>();
         prefixes = new ParseStack<>();
         problems = new ParseStack<>();
-    }
-
-    public void reset() {
-        literals.clear();
-        clauses.clear();
-        matrices.clear();
-        quantifiers.clear();
-        quantSets.clear();
-        prefixes.clear();
-        problems.clear();
+        instances = new ParseStack<>();
         result = null;
-        problem = null;
-        prefix = null;
-        matrix = null;
+        instances.push(x -> result = x.instance());
     }
 
     @Override
     public void enterInput(QdimacsInputParser.InputContext ctx) {
-        problems.push(x -> problem = x);
-        prefixes.push(x -> prefix = x);
-        matrices.push(x -> matrix = x);
+        QdimacsInstance instance = new QdimacsInstance();
+        QsatInstance qsat = instance.instance();
+        instances.push(instance);
+        problems.push(x -> {
+            qsat.variableCount(x.a);
+            instance.clauseCount(x.b);
+        });
+        prefixes.push(qsat::quantifiers);
+        matrices.push(qsat::clauses);
     }
 
     @Override
@@ -64,12 +63,14 @@ public class DefaultQdimacsInputListener implements QdimacsInputListener {
         problems.popHandler();
         prefixes.popHandler();
         matrices.popHandler();
-        result = new QsatInstance(prefix, matrix);
+        if(verify && !instances.value().verify()) {
+            throw new ParseError("Input represents an invalid instance.");
+        }
+        instances.handle();
     }
 
     @Override
     public void enterProblem(QdimacsInputParser.ProblemContext ctx) {
-
     }
 
     @Override
@@ -79,9 +80,19 @@ public class DefaultQdimacsInputListener implements QdimacsInputListener {
 
     @Override
     public void enterPrefix(QdimacsInputParser.PrefixContext ctx) {
-        List<QuantifiedAtom> prefix = new ArrayList<>();
+        List<Set<Integer>> prefix = new ArrayList<>();
         prefixes.push(prefix);
-        quantSets.push(prefix::add);
+        quantSets.push(set -> {
+            if(prefix.size() == 0) {
+                if(set.quantifier() == Quantifier.ALL) {
+                    prefix.add(set.atoms());
+                }
+            } else if(set.quantifier() == QsatInstance.getQuantifierOfSet(prefix.size() - 1)) {
+                prefix.get(prefix.size() - 1).addAll(set.atoms());
+            } else {
+                prefix.add(set.atoms());
+            }
+        });
     }
 
     @Override
@@ -92,16 +103,19 @@ public class DefaultQdimacsInputListener implements QdimacsInputListener {
 
     @Override
     public void enterQuant_set(QdimacsInputParser.Quant_setContext ctx) {
-        quantifiers.push(quantifiers::push);
+        QuantifierSet set = new QuantifierSet();
+        quantSets.push(set);
+        quantifiers.push(set::quantifier);
     }
 
     @Override
     public void exitQuant_set(QdimacsInputParser.Quant_setContext ctx) {
-        Quantifier quantifier = quantifiers.popValue();
         quantifiers.popHandler();
+        Set<Integer> set = quantSets.value().atoms();
         for(TerminalNode atom : ctx.PNUM()) {
-            quantSets.handle(new QuantifiedAtom(Integer.parseInt(atom.getText()), quantifier));
+            set.add(Integer.parseInt(atom.getText()));
         }
+        quantSets.handle();
     }
 
     @Override
@@ -124,7 +138,7 @@ public class DefaultQdimacsInputListener implements QdimacsInputListener {
 
     @Override
     public void enterMatrix(QdimacsInputParser.MatrixContext ctx) {
-        List<SatClause> matrix = new ArrayList<>();
+        List<Set<Integer>> matrix = new ArrayList<>();
         matrices.push(matrix);
         clauses.push(matrix::add);
     }
@@ -137,7 +151,7 @@ public class DefaultQdimacsInputListener implements QdimacsInputListener {
 
     @Override
     public void enterClause(QdimacsInputParser.ClauseContext ctx) {
-        SatClause clause = new SatClause();
+        Set<Integer> clause = new HashSet<>();
         clauses.push(clause);
         literals.push(clause::add);
     }
@@ -159,22 +173,18 @@ public class DefaultQdimacsInputListener implements QdimacsInputListener {
 
     @Override
     public void visitTerminal(TerminalNode node) {
-
     }
 
     @Override
     public void visitErrorNode(ErrorNode node) {
-
     }
 
     @Override
     public void enterEveryRule(ParserRuleContext ctx) {
-
     }
 
     @Override
     public void exitEveryRule(ParserRuleContext ctx) {
-
     }
 
     public QsatInstance result() {

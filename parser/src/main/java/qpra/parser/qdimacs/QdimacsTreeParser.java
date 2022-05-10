@@ -13,7 +13,7 @@ import java.io.IOException;
 public class QdimacsTreeParser implements QsatParser {
 
     @Override
-    public QsatInstance parse(File inputFile) throws IOException {
+    public QsatInstance parse(File inputFile, boolean verify) throws IOException {
         QdimacsInputLexer lexer = new QdimacsInputLexer(new ANTLRFileStream(inputFile.getPath()));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         QdimacsInputParser parser = new QdimacsInputParser(tokens);
@@ -21,7 +21,7 @@ public class QdimacsTreeParser implements QsatParser {
         if(parser.getNumberOfSyntaxErrors() > 0) {
             return null;
         }
-        DefaultQdimacsInputListener listener = new DefaultQdimacsInputListener();
+        DefaultQdimacsInputListener listener = new DefaultQdimacsInputListener(verify);
         ParseTreeWalker.DEFAULT.walk(listener, tree);
         return listener.result();
     }
