@@ -18,7 +18,7 @@ public class QsatFormatter {
         for(Set<Integer> clause : instance.clauses()) {
             appendClause(clause);
         }
-        builder.append("BINARIES\n");
+        builder.append("BOUNDS\n\nBINARIES\n");
         for(int i = 1; i <= instance.variableCount(); ++i){
             appendAtom(i);
             builder.append(" ");
